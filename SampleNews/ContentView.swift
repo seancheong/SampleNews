@@ -12,9 +12,21 @@ struct ContentView: View {
 
     var body: some View {
         NavigationStack {
-            List(vm.articles, rowContent: ArticleRowView.init)
-                .navigationTitle("Sample News")
-                .navigationDestination(for: Article.self, destination: ArticleView.init)
+            switch vm.loadState {
+            case .failed:
+                LoadFailedView(error: vm.loadError, retry: vm.loadArticles)
+            default:
+                if vm.articles.isEmpty {
+                    ProgressView("Loading...")
+                        .controlSize(.extraLarge)
+                } else {
+                    List(vm.filteredArticles, rowContent: ArticleRowView.init)
+                        .navigationTitle("Sample News")
+                        .navigationDestination(for: Article.self, destination: ArticleView.init)
+                        .refreshable(action: vm.loadArticles)
+                        .searchable(text: $vm.filterText, prompt: "Filter articles")
+                }
+            }
         }
         .task(vm.loadArticles)
     }
