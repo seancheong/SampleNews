@@ -12,18 +12,7 @@ struct ArticleView: View {
 
     var body: some View {
         ScrollView {
-            AsyncImage(url: article.image) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                default:
-                    Image(systemName: "newspaper")
-                }
-            }
+            ArticleImageView(imageURL: article.image)
 
             VStack(alignment: .leading, spacing: 20) {
                 Text(article.title)
