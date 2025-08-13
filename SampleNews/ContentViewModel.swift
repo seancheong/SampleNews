@@ -19,12 +19,19 @@ extension ContentView {
         private(set) var loadState = LoadState.loading
         private(set) var loadError: (any Error)?
 
+        private var urlSession: any DataFetching
+
+        init(session: DataFetching = URLSession.shared) {
+            self.urlSession = session
+        }
+
         var filterText = ""
         var filteredArticles: [Article] {
             if filterText.isEmpty {
                 articles
             } else {
                 articles.filter {
+                    /// Using localizedStandardContains() here means we ignore case and diacritics
                     $0.title.localizedStandardContains(filterText)
                 }
             }
@@ -35,7 +42,7 @@ extension ContentView {
 
             do {
                 let url = URL(string: "https://hws.dev/news")!
-                let (data, _) = try await URLSession.shared.data(from: url)
+                let (data, _) = try await urlSession.data(from: url)
                 let decoder = JSONDecoder()
                 decoder.dateDecodingStrategy = .iso8601
 
