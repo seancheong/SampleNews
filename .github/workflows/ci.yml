@@ -1,0 +1,44 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # See https://github.com/maxim-lobanov/setup-xcode#readme for versions
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: "16"
+
+      # Build for testing (no code signing)
+      - name: Build for testing
+        run: |
+          xcodebuild \
+            -scheme "SampleNews" \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -configuration Debug \
+            -skipPackagePluginValidation \
+            -allowProvisioningUpdates \
+            CODE_SIGNING_ALLOWED=NO \
+            build-for-testing
+
+      # Run tests without rebuilding
+      - name: Run tests
+        run: |
+          xcodebuild \
+            -scheme "SampleNews" \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -configuration Debug \
+            -skipPackagePluginValidation \
+            -allowProvisioningUpdates \
+            CODE_SIGNING_ALLOWED=NO \
+            test-without-building
